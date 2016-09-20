@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		#wrap {
+			width: 730px;
+			height: 454px;
+			position: relative;
+		}
+
+		ul, li {
+			list-style: none;
+		}
+
+		.btns {
+			overflow: hidden;
+			position: absolute;
+			top: 400px;
+			left: 300px;
+		}
+		
+		.btns li {
+			border: 1px solid red;
+			width: 25px;
+			height: 25px;
+			border-radius: 25px;
+			float: left;
+			margin-right: 10px;
+		}
+
+		.selectedBtn {
+			background-color: black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app"></div>
+
+	<script type="text/javascript" src="bin/react.min.js"></script>
+	<script type="text/javascript" src="bin/react-dom.min.js"></script>
+	<script type="text/javascript" src="bin/babel.js"></script>
+	<script type="text/babel">
+		
+		var Wrap = React.createClass({
+			getInitialState() {
+			    return {
+			       imgSrc: "../images/images/1.jpg",
+			       imgIndex: 0,
+			       all_imgs: [{
+			      		src: "../images/images/1.jpg",
+			      		selected: true
+			       },{
+			      		src: "../images/images/2.jpg",
+			      		selected: false
+			       },{
+			      		src: "../images/images/3.jpg",
+			      		selected: false
+			       },{
+			      		src: "../images/images/4.jpg",
+			      		selected: false
+			       }]
+			    };
+			},
+			componentWillMount() {
+
+			},
+			componentDidMount() {
+			  	this.run();  
+			},
+			run() {
+				this.timer = window.setInterval(() => {
+			    	this.state.imgIndex++;
+			    	if(this.state.imgIndex == this.state.all_imgs.length) {
+			    		this.state.imgIndex = 0;
+			    	}
+			    	this.state.imgSrc = this.state.all_imgs[this.state.imgIndex].src;
+			    	this.state.all_imgs.forEach((item, index) => {
+			    		if(index == this.state.imgIndex) {
+			    			item.selected = true;
+			    		} else {
+			    			item.selected = false;
+			    		}
+			    	});
+			    	this.forceUpdate();
+			    }, 1000)
+			},
+			setIndex(index) {
+				this.state.imgIndex = index;
+				this.state.imgSrc = this.state.all_imgs[this.state.imgIndex].src;
+				this.state.all_imgs.forEach((item, _index) => {
+		    		if(index == _index) {
+		    			item.selected = true;
+		    		} else {
+		    			item.selected = false;
+		    		}
+		    	});
+		    	this.forceUpdate();
+			},
+			clearTimer() {
+				window.clearInterval(this.timer);
+			},
+		    render() {
+		        return (
+		            <div id="wrap">
+		            	<ShowImg imgSrc={ this.state.imgSrc }/>
+		            	<ButtonImgs setIndex={ this.setIndex } clearTimer={ this.clearTimer } run={ this.run } { ...this.state } />
+		            </div>
+		        );
+		    }
+		});
+
+		var ShowImg = React.createClass({
+			render() {
+				return (
+					<img src={ this.props.imgSrc } />
+				);
+			}
+		});
+
+		var ButtonImgs = React.createClass({
+			render() {
+				var arr = this.props.all_imgs.map((item, index) => {
+					return <Button key={ index } index={ index } {...this.props } {...item}  />
+				})
+				return (
+					<ul className="btns">
+						{ arr }
+					</ul>
+				);				
+			}
+		});
+
+		var Button = React.createClass({
+			render() {
+				return (
+					<li onMouseLeave={ () => this.props.run() } onMouseEnter={ () => {
+						this.props.clearTimer();
+						this.props.setIndex(this.props.index);
+					} } className={ this.props.selected ? "selectedBtn" : "" }></li>
+				);
+			}
+		})
+
+		ReactDOM.render(<Wrap />, app);
+		
+	</script>
+</body>
+</html>
